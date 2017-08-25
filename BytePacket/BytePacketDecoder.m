@@ -46,6 +46,7 @@
 - (void)decodeNewPacketInBufferData:(NSData *)bufferData
 {
     BytePacket *packet = [[self.packetClass alloc] init];
+    packet.encodeData = bufferData;
     NSData *headerData = [packet packHead];
     NSInteger find = [ByteTransfrom findData:headerData firstPositionInData:bufferData];
     if(find == -1)
