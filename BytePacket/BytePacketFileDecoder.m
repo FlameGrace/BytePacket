@@ -62,8 +62,7 @@
 
 - (void)receiveNewBufferData:(NSData *)newBuffer
 {
-    @synchronized (self)
-    {
+    dispatch_sync(self.decodeQueue, ^{
         if(newBuffer.length <1 )
             return;
         
@@ -93,7 +92,7 @@
             [self performSelectorOnMainThread:@selector(startTimer) withObject:nil waitUntilDone:NO];
         }
         
-    }
+    });
 
 }
 

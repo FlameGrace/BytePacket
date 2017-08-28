@@ -23,6 +23,8 @@
 
 @protocol BytePacketDecoderProtocol <NSObject>
 
+@property (strong, nonatomic) dispatch_queue_t decodeQueue;
+
 @property (strong, nonatomic) Class packetClass;
 
 @property (weak, nonatomic) id <BytePacketDecoderDelegate>delegate;

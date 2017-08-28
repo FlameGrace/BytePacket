@@ -17,7 +17,7 @@
 @implementation BytePacketDecoder
 @synthesize delegate = _delegate;
 @synthesize packetClass = _packetClass;
-
+@synthesize decodeQueue = _decodeQueue;
 
 - (void)setPacketClass:(Class)packetClass
 {
@@ -30,7 +30,7 @@
 
 - (void)receiveNewBufferData:(NSData *)newBuffer
 {
-    @synchronized (self) {
+    dispatch_sync(self.decodeQueue, ^{
         if(!newBuffer||newBuffer.length == 0)
         {
             return;
@@ -38,7 +38,7 @@
         [self.bufferData appendData:newBuffer];
         NSData *data = [NSData dataWithData:self.bufferData];
         [self decodeNewPacketInBufferData:data];
-    }
+    });
 }
 
 
@@ -57,6 +57,7 @@
     NSError *error = nil;
     if([packet decodeWithError:&error])
     {
+        [self.bufferData replaceBytesInRange:NSMakeRange(0, packet.encodeLength) withBytes:NULL length:0];
         if([self.delegate respondsToSelector:@selector(bytePacketDecoder:decodeNewPacket:)])
         {
             [self.delegate bytePacketDecoder:self decodeNewPacket:packet];
@@ -83,6 +84,16 @@
         _bufferData = [[NSMutableData alloc]init];
     }
     return _bufferData;
+}
+- (dispatch_queue_t)decodeQueue
+{
+    if(!_decodeQueue)
+    {
+        NSTimeInterval now = [[NSDate date]timeIntervalSince1970];
+        NSString *identifier = [NSString stringWithFormat:@"LMBytePacketDecoder_%f",now];
+        _decodeQueue = dispatch_queue_create([identifier UTF8String], DISPATCH_QUEUE_PRIORITY_DEFAULT);
+    }
+    return _decodeQueue;
 }
 
 @end
