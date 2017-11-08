@@ -1,6 +1,5 @@
 //
-//  ByteHandle.m
-//  p2p
+//  ByteTransfrom.m
 //
 //  Created by Flame Grace on 16/11/4.
 //  Copyright © 2016年 hello. All rights reserved.
@@ -164,42 +163,22 @@
 }
 
 
-+ (char *)substr:(char *)src start:(NSInteger)start length:(NSInteger)length
++ (char *)substr:(NSData *)src start:(NSInteger)start length:(NSInteger)length
 {
-    
-    char* pch=src;
-    //定义一个字符指针，指向传递进来的ch地址。
-    char* subch=(char*)calloc(sizeof(char),length+1);
-    //通过calloc来分配一个length长度的字符数组，返回的是字符指针。
-    int i;
-    //只有在C99下for循环中才可以声明变量，这里写在外面，提高兼容性。
-    pch=pch+start;
-    //是pch指针指向pos位置。
-    for(i=0;i<length;i++)
-    {
-        subch[i]=*(pch++);
-        //循环遍历赋值数组。
-    }
-    subch[length]='\0';//加上字符串结束符。
-    return subch;       //返回分配的字符数组地址。
-    
-    
-//    
-//    
-//    NSData *rangeData = [data subdataWithRange:NSMakeRange(start, length)];
-//    return (Byte *)[rangeData bytes];
+    NSData *rangeData = [self subdata:src start:start length:length];
+    return (char *)[rangeData bytes];
 }
 
 
 
-+ (Byte *)subdata:(NSData *)data start:(NSInteger)start length:(NSInteger)length
++ (NSData *)subdata:(NSData *)data start:(NSInteger)start length:(NSInteger)length
 {
     if(start < 0 || start > data.length || start + length >data.length)
     {
         return nil;
     }
     NSData *rangeData = [data subdataWithRange:NSMakeRange(start, length)];
-    return (Byte *)[rangeData bytes];
+    return rangeData;
 }
 
 @end

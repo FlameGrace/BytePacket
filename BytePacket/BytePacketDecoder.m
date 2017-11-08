@@ -1,31 +1,34 @@
 //
 //  BytePacketDecoder.m
-//  ToolsKit
 //
 //  Created by Flame Grace on 2017/8/24.
-//  Copyright © 2017年 hello. All rights reserved.
+//  Copyright © 2017年 zhouhaoran. All rights reserved.
 //
 
 #import "BytePacketDecoder.h"
 
 @interface BytePacketDecoder()
 
-@property (strong, nonatomic) NSMutableData *bufferData;
-
 @end
 
 @implementation BytePacketDecoder
 @synthesize delegate = _delegate;
-@synthesize packetClass = _packetClass;
+@synthesize packetType = _packetType;
 @synthesize decodeQueue = _decodeQueue;
+@synthesize bufferData = _bufferData;
 
-- (void)setPacketClass:(Class)packetClass
+- (instancetype)initWithPacketType:(Class<BytePacketProtocol>)packetType
 {
-    if(![packetClass isSubclassOfClass:[BytePacket class]])
+    if(self = [super init])
     {
-        return;
+        self.packetType = packetType;
     }
-    _packetClass = packetClass;
+    return self;
+}
+
+- (void)setPacketType:(Class)packetType
+{
+    _packetType = packetType;
 }
 
 - (void)receiveNewBufferData:(NSData *)newBuffer
@@ -35,46 +38,55 @@
         {
             return;
         }
-        [self.bufferData appendData:newBuffer];
-        NSData *data = [NSData dataWithData:self.bufferData];
-        [self decodeNewPacketInBufferData:data];
+        else
+        {
+            [self.bufferData appendData:newBuffer];
+        }
+        [self decodePacketsInBufferData];
     });
 }
 
 
 
-- (void)decodeNewPacketInBufferData:(NSData *)bufferData
+- (void)decodePacketsInBufferData
 {
-    BytePacket *packet = [[self.packetClass alloc] init];
-    packet.encodeData = bufferData;
-    NSData *headerData = [packet packHead];
-    NSInteger find = [ByteTransfrom findData:headerData firstPositionInData:bufferData];
-    if(find == -1)
-    {
-        [self.bufferData replaceBytesInRange:NSMakeRange(0, bufferData.length) withBytes:NULL length:0];
-        return;
+    BOOL need = YES;
+    while (need && self.bufferData.length) {
+        need = [self decodeSinglePacketInBufferData];
     }
+}
+
+
+- (BOOL)decodeSinglePacketInBufferData
+{
+    NSData *singleBufferData = [NSData dataWithData:self.bufferData];
+    id <BytePacketProtocol> packet = [[self.packetType alloc]init];
+    packet.encodeData = singleBufferData;
     NSError *error = nil;
     if([packet decodeWithError:&error])
     {
+        if(self.bufferData.length < packet.encodeLength)
+        {
+            return NO;
+        }
         [self.bufferData replaceBytesInRange:NSMakeRange(0, packet.encodeLength) withBytes:NULL length:0];
         if([self.delegate respondsToSelector:@selector(bytePacketDecoder:decodeNewPacket:)])
         {
             [self.delegate bytePacketDecoder:self decodeNewPacket:packet];
         }
-        
-        return;
+        return YES;
     }
     //如果因为数据长度不够而解码出错，读取的指针,下一次从find位置开始读
     if(error.code == BytePacketLackDataErrorCode)
     {
-        return;
+        return NO;
     }
     else
     {
-        [self.bufferData replaceBytesInRange:NSMakeRange(0, bufferData.length) withBytes:NULL length:0];
-        return;
+        [self.bufferData replaceBytesInRange:NSMakeRange(0, singleBufferData.length) withBytes:NULL length:0];
+        return YES;
     }
+    
 }
 
 - (NSMutableData *)bufferData
@@ -85,12 +97,13 @@
     }
     return _bufferData;
 }
+
 - (dispatch_queue_t)decodeQueue
 {
     if(!_decodeQueue)
     {
         NSTimeInterval now = [[NSDate date]timeIntervalSince1970];
-        NSString *identifier = [NSString stringWithFormat:@"LMBytePacketDecoder_%f",now];
+        NSString *identifier = [NSString stringWithFormat:@"BytePacketDecoder_%f",now];
         _decodeQueue = dispatch_queue_create([identifier UTF8String], DISPATCH_QUEUE_PRIORITY_DEFAULT);
     }
     return _decodeQueue;
