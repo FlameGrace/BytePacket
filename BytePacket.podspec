@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/FlameGrace/BytePacket"
   s.license      = "BSD"
   s.author             = { "FlameGrace" => "flamegrace@hotmail.com" }
-  s.ios.deployment_target = "5.0"
+  s.ios.deployment_target = "8.0"
   s.source       = { :git => "https://github.com/FlameGrace/BytePacket.git", :tag => "0.0.1" }
   s.source_files  = "BytePacket", "BytePacket/**/*.{h,m}"
   s.public_header_files = "BytePacket/**/*.h"
