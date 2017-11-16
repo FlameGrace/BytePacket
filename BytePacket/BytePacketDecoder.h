@@ -19,7 +19,7 @@
  Parse a single package
  解析单个包
  @return YES:已解析出一个包，可以继续下一个包的解析；NO:当前包解析因数据长度不足失败，需要等待数据
-         YES: has resolved a package that can continue parsing the next packet; NO: current packet parsing needs to wait for data because of insufficient data length
+         YES: has resolved a package that can continue parsing the next packet; NO: current packet parsing needs to wait for data because of lack data
  */
 - (BOOL)decodeSinglePacketInBufferData;
 

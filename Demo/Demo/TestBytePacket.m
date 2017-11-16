@@ -32,6 +32,7 @@
     current = find + 2;
     if(find == -1)
     {
+        self.canBeSkippedLength = length;
         if(error != NULL)
         {
             *error = [NSError errorWithDomain:BytePacketErrorDomain code:BytePacketDefaultErrorCode userInfo:@{NSLocalizedDescriptionKey:@"Encode data did not contain head data!"}];
@@ -60,7 +61,7 @@
         return NO;
     }
     self.jsonDic = jsonDic;
-    self.encodeLength = length;
+    self.canBeSkippedLength = current;
     return YES;
 }
 
@@ -96,7 +97,6 @@
     codeLen += jsonLength;
     
     self.encodeData = [NSData dataWithData:encodeBuffer];
-    self.encodeLength = codeLen;
     
     return YES;
 }
