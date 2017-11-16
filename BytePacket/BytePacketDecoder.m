@@ -69,8 +69,13 @@
     {
         return NO;
     }
+    //Do not set canBeSkippedLength can cause memory error, so default remove all buffer data.
+    if(packet.canBeSkippedLength == 0)
+    {
+        packet.canBeSkippedLength = self.bufferData.length;
+    }
     //Remove data which can be skipped from buffer.
-    if(self.bufferData.length >= packet.canBeSkippedLength && packet.canBeSkippedLength > 0)
+    if(self.bufferData.length >= packet.canBeSkippedLength)
     {
         [self.bufferData replaceBytesInRange:NSMakeRange(0, packet.canBeSkippedLength) withBytes:NULL length:0];
     }
