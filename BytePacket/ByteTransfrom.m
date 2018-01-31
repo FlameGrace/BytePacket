@@ -9,6 +9,55 @@
 
 @implementation ByteTransfrom
 
++ (Byte *)convertByte:(Byte *)soc length:(NSInteger)len
+{
+    if(len<1||soc == NULL)
+    {
+        return nil;
+    }
+    char *d = malloc(len);
+    for (int i = 0; i < len; ++i) {
+        d[i] = soc[len - i -1];
+    }
+    return (Byte *)d;
+}
+
++ (Byte *)shortIntToHighBytes:(short)num
+{
+    Byte *res = &num;
+    return [self convertByte:res length:2];
+}
+
++ (Byte *)intToHighBytes:(int)num
+{
+    Byte *res = &num;
+    return [self convertByte:res length:4];
+}
+
++ (Byte *)floatToHighBytes:(float)num
+{
+    Byte *res = &num;
+    return [self convertByte:res length:4];
+}
+
++ (Byte *)longToHighBytes:(long)num
+{
+    Byte *res = &num;
+    return [self convertByte:res length:8];
+}
+
++ (Byte *)doubleToHighBytes:(double)num
+{
+    Byte *res = &num;
+    return [self convertByte:res length:8];
+}
+
++ (short)oneBytesToShortInt:(Byte *)byte
+{
+    short number = (short) ((byte[0] & 0xff));
+    return number;
+}
+
 + (short)lowBytesToShortInt:(Byte *)byte
 {
     short number = (short) (((byte[0] & 0xff)) | (byte[1] & 0xff) << 8);
@@ -22,78 +71,75 @@
     return number;
 }
 
-+(int)highBytesToInt:(Byte*)byte
++ (int)lowBytesToInt:(Byte*)byte
 {
-    int number = 0;
-    NSData * testData =[NSData dataWithBytes:byte length:4];
-    for (int i = 0; i < [testData length]; i++)
-    {
-        if (byte[i] >= 0)
-        {
-            number = number + byte[i];
-        } else
-        {
-            number = number +256 + byte[i];
-        }
-        number = number * 256;
-        if (byte[3] >= 0)
-        {
-            number = number + byte[3];
-        } else
-        {
-            number = number + 256 + byte[3];
-        }
-        
-    }
-    return number;
+    int value;
+    value = (int) ((byte[0] & 0xFF)
+                   | ((byte[1] & 0xFF)<<8)
+                   | ((byte[2] & 0xFF)<<16)
+                   | ((byte[3] & 0xFF)<<24));
+    return value;
 }
 
-+ (int)lowBytesToInt:(Byte *)byte
++ (int)highBytesToInt:(Byte *)byte
 {
-    int number = 0;
-    NSData * testData =[NSData dataWithBytes:byte length:4];
-    for (int i = 0; i < [testData length]; i++)
-    {
-        if (byte[[testData length]-i] >= 0)
-        {
-            number = number + byte[[testData length]-i];
-        } else
-        {
-            number = number + 256 + byte[[testData length]-i];
-        }
-        number = number * 256;
-    }
-    if (byte[0] >= 0)
-    {
-        number = number + byte[0];
-    } else {
-        number = number + 256 + byte[0];
-    }
-    return number;
+    int value;
+    value = (int) (((byte[0] & 0xFF)<<24)
+                   |((byte[1] & 0xFF)<<16)
+                   |((byte[2] & 0xFF)<<8)
+                   |(byte[3] & 0xFF));
+    return value;
+}
+
++ (float)lowBytesToFloat:(Byte *)byte
+{
+    float res = 0;
+    int n = sizeof(float);
+    char *bytes = (char *)byte;
+    memcpy(&res, bytes, n);
+    return res;
+}
+
++ (float)highBytesToFloat:(Byte *)byte
+{
+    Byte *res = [self convertByte:byte length:4];
+    return [self lowBytesToFloat:res];
 }
 
 + (long)lowBytesToLong:(Byte *)byte
 {
-    long s = 0;
-    long s0 = byte[0] & 0xff;// 最低位
-    long s1 = byte[1] & 0xff;
-    long s2 = byte[2] & 0xff;
-    long s3 = byte[3] & 0xff;
-    long s4 = byte[4] & 0xff;// 最低位
-    long s5 = byte[5] & 0xff;
-    long s6 = byte[6] & 0xff;
-    long s7 = byte[7] & 0xff; // s0不变
-    s1 <<= 8;
-    s2 <<= 16;
-    s3 <<= 24;
-    s4 <<= 8 * 4;
-    s5 <<= 8 * 5;
-    s6 <<= 8 * 6;
-    s7 <<= 8 * 7;
-    s = s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7;
-    return s;
+    long res = 0;
+    int n = sizeof(long);
+    char *bytes = (char *)byte;
+    memcpy(&res, bytes, n);
+    return res;
 }
 
++ (long)highBytesToLong:(Byte *)byte
+{
+    long num = 0;
+    for (int i = 0; i < 8; ++i) {
+        num <<= 8;
+        num |= (byte[i] & 0xff);
+    }
+    return num;
+}
+
+
++ (double)lowBytesToDouble:(Byte *)byte
+{
+    double res = 0;
+    int n = sizeof(double);
+    char *bytes = (char *)byte;
+    memcpy(&res, bytes, n);
+    return res;
+}
+
++ (double)highBytesToDouble:(Byte *)byte
+{
+    Byte *res = [self convertByte:byte length:8];
+    return [self lowBytesToDouble:res];
+}
 
 + (NSInteger)findData:(NSData *)find firstPositionInData:(NSData *)data
 {
@@ -152,14 +198,11 @@
             [positions addObject:[NSNumber numberWithInteger:i]];
         }
     }
-    
     if(positions.count < 1)
     {
         return nil;
     }
     return [NSArray arrayWithArray:positions];
-    
-    
 }
 
 
