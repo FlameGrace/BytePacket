@@ -15,11 +15,13 @@
     {
         return nil;
     }
-    char *d = malloc(len);
+    Byte *d = (Byte *)malloc(len);
     for (int i = 0; i < len; ++i) {
         d[i] = soc[len - i -1];
     }
-    return (Byte *)d;
+    NSData *data = [NSData dataWithBytes:d length:len];
+    free(d);
+    return data.bytes;
 }
 
 + (Byte *)shortIntToHighBytes:(short)num
