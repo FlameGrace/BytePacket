@@ -33,7 +33,7 @@
 
 - (void)receiveNewBufferData:(NSData *)newBuffer
 {
-    dispatch_sync(self.decodeQueue, ^{
+    dispatch_async(self.decodeQueue, ^{
         if(!newBuffer||newBuffer.length == 0)
         {
             return;
@@ -104,7 +104,7 @@
     {
         NSTimeInterval now = [[NSDate date]timeIntervalSince1970];
         NSString *identifier = [NSString stringWithFormat:@"BytePacketDecoder_%f",now];
-        _decodeQueue = dispatch_queue_create([identifier UTF8String], DISPATCH_QUEUE_PRIORITY_DEFAULT);
+        _decodeQueue = dispatch_queue_create([identifier UTF8String], DISPATCH_QUEUE_SERIAL);
     }
     return _decodeQueue;
 }
