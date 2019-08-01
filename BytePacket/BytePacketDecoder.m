@@ -33,7 +33,7 @@
 
 - (void)receiveNewBufferData:(NSData *)newBuffer
 {
-    dispatch_async(self.decodeQueue, ^{
+    dispatch_sync(self.decodeQueue, ^{
         if(!newBuffer||newBuffer.length == 0)
         {
             return;
