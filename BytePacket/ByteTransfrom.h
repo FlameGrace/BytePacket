@@ -9,7 +9,7 @@
 
 @interface ByteTransfrom : NSObject
 /**
- short转大端字节码
+ short转大端字节码  2字节
  @param num short
  @return 字节码
  */

@@ -16,4 +16,6 @@
 
 + (instancetype)packet;
 
+- (void)lackDataError:(NSError **)error;
+
 @end

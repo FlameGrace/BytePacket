@@ -11,13 +11,13 @@
 @interface BytePacketDecoder : NSObject <BytePacketDecoderProtocol>
 /**
  Cyclic decoding of current cached data
- 对当前缓存数据进行循环解码
+ 对当前缓存数据进行循环解码,内部会保持while循环调用decodeSinglePacketInBufferData来解析，直到缓存数据为空时停止
  */
 - (void)decodePacketsInBufferData;
 
 /**
  Parse a single package
- 解析单个包
+ 解析单个包，根据canBeSkippedLength删除临时数据
  @return YES:已解析出一个包，可以继续下一个包的解析；NO:当前包解析因数据长度不足失败，需要等待数据
          YES: has resolved a package that can continue parsing the next packet; NO: current packet parsing needs to wait for data because of lack data
  */

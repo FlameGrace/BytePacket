@@ -10,21 +10,21 @@
 
 @protocol BytePacketDecoderProtocol;
 
-
+//
 @protocol BytePacketDecoderDelegate <NSObject>
 
-//解析到新数据块
+//代理通知方法，解析到符合二进制协议的数据块
 - (void)bytePacketDecoder:(id<BytePacketDecoderProtocol>)decoder decodeNewPacket:(id<BytePacketProtocol>)packet;
 
 @end
 
 
 @protocol BytePacketDecoderProtocol <NSObject>
-
+//临时缓存数据
 @property (strong, nonatomic) NSMutableData *bufferData;
-
+//解析线程
 @property (strong, nonatomic) dispatch_queue_t decodeQueue;
-//需要解码的数据块类型
+//需要解码的数据块类型，需遵循<BytePacketProtocol>
 @property (readonly, nonatomic) Class packetType;
 
 @property (weak, nonatomic) id <BytePacketDecoderDelegate>delegate;

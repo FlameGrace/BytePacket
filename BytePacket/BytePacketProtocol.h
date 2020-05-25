@@ -32,9 +32,6 @@ typedef NS_ENUM(NSInteger, BytePacketErrorCode){
 //编码
 - (BOOL)encodeWithError:(NSError **)error;
 
-
-
-
 @end
 
 

@@ -34,5 +34,12 @@
 }
 
 
+- (void)lackDataError:(NSError **)error
+{
+    if(error != NULL)
+    {
+        *error = [NSError errorWithDomain:BytePacketErrorDomain code:BytePacketLackDataErrorCode userInfo:@{NSLocalizedDescriptionKey:@"要解码的数据长度不足"}];
+    }
+}
 
 @end
